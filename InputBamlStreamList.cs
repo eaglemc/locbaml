@@ -27,58 +27,58 @@ namespace BamlLocalization
         /// </summary>        
         internal InputBamlStreamList(LocBamlOptions options)
         {
-            _bamlStreams  = new ArrayList();
-            switch(options.InputType)
+            _bamlStreams = new ArrayList();
+            switch (options.InputType)
             {
                 case FileType.BAML:
-                {
-                    _bamlStreams.Add(
-                        new BamlStream(
-                            Path.GetFileName(options.Input),
-                            File.OpenRead(options.Input)
-                            )
-                    );
-                    break;
-                }
-                case FileType.RESOURCES:
-                {
-                    using (ResourceReader resourceReader = new ResourceReader(options.Input))
                     {
-                        // enumerate all bamls in a resources
-                        EnumerateBamlInResources(resourceReader, options.Input);
+                        _bamlStreams.Add(
+                            new BamlStream(
+                                Path.GetFileName(options.Input),
+                                File.OpenRead(options.Input)
+                                )
+                        );
+                        break;
                     }
-                    break;
-                }
-		case FileType.EXE:
-                case FileType.DLL:
-                {
-                    // for a dll, it is the same idea
-                    Assembly assembly = Assembly.LoadFrom(options.Input);
-                    foreach (string resourceName in assembly.GetManifestResourceNames())
+                case FileType.RESOURCES:
                     {
-                        ResourceLocation resourceLocation = assembly.GetManifestResourceInfo(resourceName).ResourceLocation;
-                               
-                        // if this resource is in another assemlby, we will skip it
-                        if ((resourceLocation & ResourceLocation.ContainedInAnotherAssembly) != 0)
+                        using (ResourceReader resourceReader = new ResourceReader(options.Input))
                         {
-                            continue;   // in resource assembly, we don't have resource that is contained in another assembly
+                            // enumerate all bamls in a resources
+                            EnumerateBamlInResources(resourceReader, options.Input);
                         }
- 
-                        Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
-                        using (ResourceReader reader = new ResourceReader(resourceStream))
+                        break;
+                    }
+                case FileType.EXE:
+                case FileType.DLL:
+                    {
+                        // for a dll, it is the same idea
+                        Assembly assembly = Assembly.LoadFrom(options.Input);
+                        foreach (string resourceName in assembly.GetManifestResourceNames())
                         {
-                            EnumerateBamlInResources(reader, resourceName);                              
+                            ResourceLocation resourceLocation = assembly.GetManifestResourceInfo(resourceName).ResourceLocation;
+
+                            // if this resource is in another assemlby, we will skip it
+                            if ((resourceLocation & ResourceLocation.ContainedInAnotherAssembly) != 0)
+                            {
+                                continue;   // in resource assembly, we don't have resource that is contained in another assembly
+                            }
+
+                            Stream resourceStream = assembly.GetManifestResourceStream(resourceName);
+                            using (ResourceReader reader = new ResourceReader(resourceStream))
+                            {
+                                EnumerateBamlInResources(reader, resourceName);
+                            }
                         }
-                    }                    
-                    break;
-                }
+                        break;
+                    }
                 default:
-                {
-                    
-                    Debug.Assert(false, "Not supported type");
-                    break;
-                }                    
-            }                  
+                    {
+
+                        Debug.Assert(false, "Not supported type");
+                        break;
+                    }
+            }
         }
 
         /// <summary>
