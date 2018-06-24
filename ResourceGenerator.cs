@@ -295,14 +295,60 @@ namespace BamlLocalization
                 outputAssemblyDir                       // storage dir
                 );
 
-            // Add assembly info, trying to preserver original values as close as possible
-            CopyAssemblyVersion(targetAssemblyBuilder, srcAsm);
-
             // we create a module builder for embeded resource modules
             ModuleBuilder moduleBuilder = targetAssemblyBuilder.DefineDynamicModule(
                 moduleLocalName,
                 outputAssemblyLocalName
                 );
+
+            Dictionary<string, IResourceWriter> resourceWriters = new Dictionary<string, IResourceWriter>();
+
+            // If the output assembly already exists, copy the embedded resources to the new assembly
+            string existingAssemblyName = Path.Combine(Directory.GetCurrentDirectory(), options.CultureInfo.Name, outputAssemblyLocalName);
+            if (File.Exists(existingAssemblyName))
+            {
+                // Use ReadAllBytes() so we don't hold a file handle open, which would prevent
+                // us from overwriting the file at the end.
+                Assembly existingAssembly = Assembly.Load(File.ReadAllBytes(existingAssemblyName));
+                string[] existingResourceNames = existingAssembly.GetManifestResourceNames();
+                foreach (string resourceName in existingResourceNames)
+                {
+                    ManifestResourceInfo info = existingAssembly.GetManifestResourceInfo(resourceName);
+                    if ((info.ResourceLocation & ResourceLocation.Embedded) != ResourceLocation.Embedded)
+                    {
+                        continue;
+                    }
+                    IResourceWriter writer;
+                    if (!resourceWriters.TryGetValue(resourceName, out writer))
+                    {
+                        writer = moduleBuilder.DefineResource(
+                            resourceName,         // resource name
+                            resourceName,         // resource description
+                            ResourceAttributes.Public   // visibilty of this resource to other assembly
+                            );
+                        resourceWriters.Add(resourceName, writer);
+                    }
+                    Stream resourceStream = existingAssembly.GetManifestResourceStream(resourceName);
+                    using (ResourceReader reader = new ResourceReader(resourceStream))
+                    {
+                        int j = 0;
+                        foreach (DictionaryEntry entry in reader)
+                        {
+                            string key = entry.Key.ToString();
+                            object value = entry.Value;
+                            if (key.EndsWith(".baml"))
+                            {
+                                // Skip it, we're going to get this from the untranslated assembly
+                                continue;
+                            }
+                            writer.AddResource(key, value);
+                        }
+                    }
+                }
+            }
+
+            // Add assembly info, trying to preserver original values as close as possible
+            CopyAssemblyVersion(targetAssemblyBuilder, srcAsm);
 
             options.WriteLine(StringLoader.Get("GenerateAssembly"));
 
@@ -334,24 +380,28 @@ namespace BamlLocalization
                     // get the resource writer
                     IResourceWriter writer;
                     // check if it is a embeded assembly
-                    if ((resourceLocation & ResourceLocation.Embedded) != 0)
+                    if (!resourceWriters.TryGetValue(targetResourceName, out writer))
                     {
-                        // gets the resource writer from the module builder
-                        writer = moduleBuilder.DefineResource(
-                            targetResourceName,         // resource name
-                            targetResourceName,         // resource description
-                            ResourceAttributes.Public   // visibilty of this resource to other assembly
+                        if ((resourceLocation & ResourceLocation.Embedded) != 0)
+                        {
+                            // gets the resource writer from the module builder
+                            writer = moduleBuilder.DefineResource(
+                                targetResourceName,         // resource name
+                                targetResourceName,         // resource description
+                                ResourceAttributes.Public   // visibilty of this resource to other assembly
+                                );
+                        }
+                        else
+                        {
+                            // it is a standalone resource, we get the resource writer from the assembly builder
+                            writer = targetAssemblyBuilder.DefineResource(
+                                targetResourceName,         // resource name 
+                                targetResourceName,         // description
+                                targetResourceName,         // file name to save to   
+                                ResourceAttributes.Public   // visibility of this resource to other assembly
                             );
-                    }                                
-                    else
-                    {
-                        // it is a standalone resource, we get the resource writer from the assembly builder
-                        writer =  targetAssemblyBuilder.DefineResource(
-                            targetResourceName,         // resource name 
-                            targetResourceName,         // description
-                            targetResourceName,         // file name to save to   
-                            ResourceAttributes.Public   // visibility of this resource to other assembly
-                        );
+                        }
+                        resourceWriters.Add(targetResourceName, writer);
                     }
 
                     // get the resource reader
