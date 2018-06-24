@@ -16,9 +16,10 @@ using System.Reflection;
 using System.Reflection.Emit;
 using System.Diagnostics;
 using System.Resources;
-using System.Threading; 
+using System.Threading;
 using System.Windows.Threading;
 using System.Windows.Markup.Localizer;
+using System.Collections.Generic;
 
 namespace BamlLocalization
 {
@@ -295,42 +296,7 @@ namespace BamlLocalization
                 );
 
             // Add assembly info, trying to preserver original values as close as possible
-            Action<Type, string> AddCustomStringAttribute = (Type type, string content) =>
-            {
-                if (string.IsNullOrEmpty(content)) { return; }
-                ConstructorInfo ctor = type.GetConstructor(new Type[] { typeof(string) });
-                targetAssemblyBuilder.SetCustomAttribute(new CustomAttributeBuilder(ctor, new object[] { content }));
-            };
-            bool hasInformationalVersionAttr = false;
-            object[] attrs = srcAsm.GetCustomAttributes(false);
-            foreach (var attr in attrs)
-            {
-                if (attr is AssemblyCompanyAttribute cmp) { AddCustomStringAttribute(attr.GetType(), cmp.Company); continue; }
-                if (attr is AssemblyCopyrightAttribute copy) { AddCustomStringAttribute(attr.GetType(), copy.Copyright); continue; }
-                if (attr is AssemblyDescriptionAttribute da) { AddCustomStringAttribute(attr.GetType(), da.Description); continue; }
-                if (attr is AssemblyFileVersionAttribute fva)
-                {
-                    AddCustomStringAttribute(attr.GetType(), fva.Version);
-                    if (!hasInformationalVersionAttr)
-                    {
-                        // Also set AssemblyInformationalVersionAttribute, if not set already.
-                        // The unmanaged ProductVersion is taken from that attribute.
-                        AddCustomStringAttribute(typeof(AssemblyInformationalVersionAttribute), fva.Version);
-                    }
-                    continue;
-                }
-                if (attr is AssemblyInformationalVersionAttribute iva)
-                {
-                    AddCustomStringAttribute(attr.GetType(), iva.InformationalVersion);
-                    hasInformationalVersionAttr = true;
-                    continue;
-                }
-                if (attr is AssemblyProductAttribute pa) { AddCustomStringAttribute(attr.GetType(), pa.Product); continue; }
-                if (attr is AssemblyTitleAttribute ta) { AddCustomStringAttribute(attr.GetType(), ta.Title); continue; }
-                if (attr is AssemblyTrademarkAttribute tm) { AddCustomStringAttribute(attr.GetType(), tm.Trademark); continue; }
-                if (attr is AssemblyVersionAttribute va) { AddCustomStringAttribute(attr.GetType(), va.Version); continue; }
-            }
-            targetAssemblyBuilder.DefineVersionInfoResource();
+            CopyAssemblyVersion(targetAssemblyBuilder, srcAsm);
 
             // we create a module builder for embeded resource modules
             ModuleBuilder moduleBuilder = targetAssemblyBuilder.DefineDynamicModule(
@@ -339,7 +305,7 @@ namespace BamlLocalization
                 );
 
             options.WriteLine(StringLoader.Get("GenerateAssembly"));
-                      
+
             // now for each resource in the assembly
             foreach (string resourceName in srcAsm.GetManifestResourceNames())
             {                
@@ -450,6 +416,54 @@ namespace BamlLocalization
             options.WriteLine(StringLoader.Get("DoneGeneratingAssembly"));
         }
 
+        private static void CopyAssemblyVersion(AssemblyBuilder targetAssemblyBuilder, Assembly srcAsm)
+        {
+            Action<Type, string> AddCustomStringAttribute = (Type type, string content) =>
+            {
+                if (string.IsNullOrEmpty(content)) { return; }
+                ConstructorInfo ctor = type.GetConstructor(new Type[] { typeof(string) });
+                targetAssemblyBuilder.SetCustomAttribute(new CustomAttributeBuilder(ctor, new object[] { content }));
+            };
+            bool hasInformationalVersionAttr = false;
+            object[] attrs = srcAsm.GetCustomAttributes(false);
+            foreach (var attr in attrs)
+            {
+                AssemblyCompanyAttribute cmp = attr as AssemblyCompanyAttribute;
+                if (cmp != null) { AddCustomStringAttribute(attr.GetType(), cmp.Company); continue; }
+                AssemblyCopyrightAttribute copy = attr as AssemblyCopyrightAttribute;
+                if (copy != null) { AddCustomStringAttribute(attr.GetType(), copy.Copyright); continue; }
+                AssemblyDescriptionAttribute da = attr as AssemblyDescriptionAttribute;
+                if (da != null) { AddCustomStringAttribute(attr.GetType(), da.Description); continue; }
+                AssemblyFileVersionAttribute fva = attr as AssemblyFileVersionAttribute;
+                if (fva != null)
+                {
+                    AddCustomStringAttribute(attr.GetType(), fva.Version);
+                    if (!hasInformationalVersionAttr)
+                    {
+                        // Also set AssemblyInformationalVersionAttribute, if not set already.
+                        // The unmanaged ProductVersion is taken from that attribute.
+                        AddCustomStringAttribute(typeof(AssemblyInformationalVersionAttribute), fva.Version);
+                    }
+                    continue;
+                }
+                AssemblyInformationalVersionAttribute iva = attr as AssemblyInformationalVersionAttribute;
+                if (iva != null)
+                {
+                    AddCustomStringAttribute(attr.GetType(), iva.InformationalVersion);
+                    hasInformationalVersionAttr = true;
+                    continue;
+                }
+                AssemblyProductAttribute pa = attr as AssemblyProductAttribute;
+                if (pa != null) { AddCustomStringAttribute(attr.GetType(), pa.Product); continue; }
+                AssemblyTitleAttribute ta = attr as AssemblyTitleAttribute;
+                if (ta != null) { AddCustomStringAttribute(attr.GetType(), ta.Title); continue; }
+                AssemblyTrademarkAttribute tm = attr as AssemblyTrademarkAttribute;
+                if (tm != null) { AddCustomStringAttribute(attr.GetType(), tm.Trademark); continue; }
+                AssemblyVersionAttribute va = attr as AssemblyVersionAttribute;
+                if (va != null) { AddCustomStringAttribute(attr.GetType(), va.Version); continue; }
+            }
+            targetAssemblyBuilder.DefineVersionInfoResource();
+        }
 
         //-----------------------------------------
         // private function dealing with naming 
