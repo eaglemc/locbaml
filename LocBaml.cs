@@ -16,6 +16,7 @@ using System.Reflection;
 using System.Security;
 using System.Windows;
 using System.Windows.Threading;
+using System.Collections.Generic;
 
 namespace BamlLocalization
 {
@@ -34,7 +35,8 @@ namespace BamlLocalization
         [System.STAThread()]
         public static int Main(string[] args)
         {
-			//Debugger.Break();
+            //Debugger.Break();
+            AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
         	
             LocBamlOptions options;
             string errorMessage;
@@ -84,9 +86,30 @@ namespace BamlLocalization
 
             return SuccessCode;
         
-        }        
+        }
 
-         #region Private static methods
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            string[] nameParts = args.Name.Split(',');
+            List<string> toTry = new List<string>() {
+                Path.Combine(Directory.GetCurrentDirectory(), nameParts[0] + ".exe"),
+                Path.Combine(Directory.GetCurrentDirectory(), nameParts[0] + ".dll")
+            };
+            foreach (string path in toTry)
+            {
+                if (File.Exists(path))
+                {
+                    Assembly a = Assembly.LoadFile(path);
+                    if (a != null)
+                    {
+                        return a;
+                    }
+                }
+            }
+            return null;
+        }
+
+        #region Private static methods
         //---------------------------------------------
         // Private static methods
         //---------------------------------------------
