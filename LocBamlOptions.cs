@@ -51,7 +51,7 @@ namespace BamlLocalization
                 }
 
                 string extension = Path.GetExtension(Input);
-                InputType = BinaryFileTypeHelper.GetInputFileTypeFromExtension(extension);
+                InputType = BinaryFileTypeHelper.GetBinaryFileTypeFromExtension(extension);
                 if (InputType == BinaryFileType.NONE)
                 {
                     return StringLoader.Get("FileTypeNotSupported", extension);
@@ -83,14 +83,7 @@ namespace BamlLocalization
                     }
                     else
                     {
-                        if (string.Compare(extension, TranslationFileType.CSV.GetExtension(), true, CultureInfo.InvariantCulture) == 0)
-                        {
-                            TranslationFileType = TranslationFileType.CSV;
-                        }
-                        else
-                        {
-                            TranslationFileType = TranslationFileType.TXT;
-                        }
+                        TranslationFileType = TranslationFileTypeHelpers.GetTranslationFileTypeFromExtension(extension);
                     }
                 }
             }
@@ -148,17 +141,7 @@ namespace BamlLocalization
                     {
                         // Rule #6.2: if we have file name, check the extension.
                         string extension = Path.GetExtension(Output);
-
-                        // ignore case and invariant culture
-                        if (string.Compare(extension, TranslationFileType.CSV.GetExtension(), true, CultureInfo.InvariantCulture) == 0)
-                        {
-                            TranslationFileType = TranslationFileType.CSV;
-                        }
-                        else
-                        {
-                            // just consider the output as txt format if it doesn't have .csv extension
-                            TranslationFileType = TranslationFileType.TXT;
-                        }
+                        TranslationFileType = TranslationFileTypeHelpers.GetTranslationFileTypeFromExtension(extension);
                     }
                 }
                 else
@@ -245,9 +228,11 @@ namespace BamlLocalization
             {
                 case TranslationFileType.CSV:
                 case TranslationFileType.TXT:
-                    Stream output = new FileStream(Output, FileMode.Create);
                     // ResourceTextWriter will dispose of the stream when it is disposed of
-                    return new ResourceTextWriter(TranslationFileType, output);
+                    return new ResourceTextWriter(TranslationFileType, new FileStream(Output, FileMode.Create));
+                case TranslationFileType.XLIFF:
+                    // ResourceXliffWriter will dispose of the stream when it is disposed of
+                    return new ResourceXliffWriter(this, new FileStream(Output, FileMode.Create));
                 default:
                     throw new Exception("Unknown translation file type");
             }

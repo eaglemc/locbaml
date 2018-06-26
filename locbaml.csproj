@@ -63,9 +63,20 @@
     <Compile Include="ResourceGenerator.cs" />
     <Compile Include="ResourceTextReader.cs" />
     <Compile Include="ResourceTextWriter.cs" />
+    <Compile Include="ResourceXliffWriter.cs" />
     <Compile Include="StringLoader.cs" />
     <Compile Include="TranslationDictionaries.cs" />
     <Compile Include="TranslationFileType.cs" />
+    <Compile Include="Xliff1_2\Body.cs" />
+    <Compile Include="Xliff1_2\File.cs" />
+    <Compile Include="Xliff1_2\Group.cs" />
+    <Compile Include="Xliff1_2\Header.cs" />
+    <Compile Include="Xliff1_2\Note.cs" />
+    <Compile Include="Xliff1_2\Target.cs" />
+    <Compile Include="Xliff1_2\Tool.cs" />
+    <Compile Include="Xliff1_2\TranslationState.cs" />
+    <Compile Include="Xliff1_2\TranslationUnit.cs" />
+    <Compile Include="Xliff1_2\XliffObject.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="StringTable.resText" />

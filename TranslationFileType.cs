@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
+using System.Globalization;
 
 namespace BamlLocalization
 {
     internal enum TranslationFileType
     {
+        NONE,
         CSV,
         TXT,
         XLIFF,
@@ -33,6 +32,21 @@ namespace BamlLocalization
                 // Don't need to prepend a dot or we don't know the extension
                 return extension;
             }
+        }
+        internal static TranslationFileType GetTranslationFileTypeFromExtension(string extension)
+        {
+            if (extension.StartsWith("."))
+            {
+                extension = extension.Substring(1);
+            }
+            foreach (var pair in TranslationFileTypeExtensions)
+            {
+                if (string.Compare(extension, pair.Value, true, CultureInfo.InvariantCulture) == 0)
+                {
+                    return pair.Key;
+                }
+            }
+            return TranslationFileType.NONE;
         }
     }
 }

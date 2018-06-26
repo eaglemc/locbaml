@@ -35,7 +35,7 @@ namespace BamlLocalization
                 return extension;
             }
         }
-        internal static BinaryFileType GetInputFileTypeFromExtension(string extension)
+        internal static BinaryFileType GetBinaryFileTypeFromExtension(string extension)
         {
             if (extension.StartsWith("."))
             {
