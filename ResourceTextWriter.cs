@@ -14,13 +14,14 @@ using System.Resources;
 using System.Collections;
 using System.Globalization;
 using System.Diagnostics;
+using System.Windows.Markup.Localizer;
 
 namespace BamlLocalization
 {    
     /// <summary>
     /// the class that writes to a text file either tab delimited or comma delimited. 
     /// </summary>
-    internal sealed class ResourceTextWriter : IDisposable
+    internal sealed class ResourceTextWriter : ITranslationWriter, IDisposable
     {
         //-------------------------------
         // constructor 
@@ -108,7 +109,33 @@ namespace BamlLocalization
             Close();
         }
 
-        
+        public void WriteResource(string bamlStreamName, string resourceKey, BamlLocalizableResource resource)
+        {
+            // column 1: baml stream name
+            WriteColumn(bamlStreamName);
+
+            // column 2: localizable resource key
+            WriteColumn(resourceKey);
+
+            // column 3: localizable resource's category
+            WriteColumn(resource.Category.ToString());
+
+            // column 4: localizable resource's readability
+            WriteColumn(resource.Readable.ToString());
+
+            // column 5: localizable resource's modifiability
+            WriteColumn(resource.Modifiable.ToString());
+
+            // column 6: localizable resource's localization comments
+            WriteColumn(resource.Comments);
+
+            // column 7: localizable resource's content
+            WriteColumn(resource.Content);
+
+            // Done. finishing the line
+            EndLine();
+        }
+
         #region private members
         private char        _delimiter;
         private TextWriter  _writer;        

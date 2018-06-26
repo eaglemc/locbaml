@@ -214,7 +214,6 @@ namespace BamlLocalization
             return null;
         }
 
-
         /// <summary>
         /// Write message line depending on IsVerbose flag
         /// </summary>
@@ -234,6 +233,23 @@ namespace BamlLocalization
             if (IsVerbose)
             {
                 Console.Write(message);
+            }
+        }
+
+        /// <summary>
+        /// Factory method to get an object for writing the translation file
+        /// </summary>
+        public ITranslationWriter GetTranslationWriter()
+        {
+            switch (TranslationFileType)
+            {
+                case TranslationFileType.CSV:
+                case TranslationFileType.TXT:
+                    Stream output = new FileStream(Output, FileMode.Create);
+                    // ResourceTextWriter will dispose of the stream when it is disposed of
+                    return new ResourceTextWriter(TranslationFileType, output);
+                default:
+                    throw new Exception("Unknown translation file type");
             }
         }
     }

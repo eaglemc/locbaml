@@ -21,7 +21,7 @@ namespace BamlLocalization
     /// <summary>
     /// Writer to write out localizable values into CSV or tab-separated txt files.     
     /// </summary>
-    internal static class  TranslationDictionariesWriter
+    internal static class TranslationDictionariesWriter
     {
         /// <summary>
         /// Write the localizable key-value pairs
@@ -29,10 +29,9 @@ namespace BamlLocalization
         /// <param name="options"></param>
         internal static void Write(LocBamlOptions options)            
         {   
-            Stream output = new FileStream(options.Output, FileMode.Create);
             InputBamlStreamList bamlStreamList = new InputBamlStreamList(options);
 
-            using (ResourceTextWriter writer = new ResourceTextWriter(options.TranslationFileType, output))
+            using (ITranslationWriter writer = options.GetTranslationWriter())
             {
                 options.WriteLine(StringLoader.Get("WriteBamlValues"));
                 for (int i = 0; i < bamlStreamList.Count; i++)
@@ -65,32 +64,10 @@ namespace BamlLocalization
                         // write out each resource
                         foreach (DictionaryEntry entry in dict)
                         {
-                            // column 1: baml stream name
-                            writer.WriteColumn(bamlStreamList[i].Name);
-                            
-                            BamlLocalizableResourceKey key = (BamlLocalizableResourceKey) entry.Key;
+                            BamlLocalizableResourceKey key = (BamlLocalizableResourceKey)entry.Key;
                             BamlLocalizableResource resource = (BamlLocalizableResource)entry.Value;
 
-                            // column 2: localizable resource key
-                            writer.WriteColumn(LocBamlConst.ResourceKeyToString(key));
-
-                            // column 3: localizable resource's category
-                            writer.WriteColumn(resource.Category.ToString());
-
-                            // column 4: localizable resource's readability
-                            writer.WriteColumn(resource.Readable.ToString());
-
-                            // column 5: localizable resource's modifiability
-                            writer.WriteColumn(resource.Modifiable.ToString());
-
-                            // column 6: localizable resource's localization comments
-                            writer.WriteColumn(resource.Comments);
-
-                            // column 7: localizable resource's content
-                            writer.WriteColumn(resource.Content);
-
-                            // Done. finishing the line
-                            writer.EndLine();
+                            writer.WriteResource(bamlStreamList[i].Name, LocBamlConst.ResourceKeyToString(key), resource);
                         }
 
                         options.WriteLine(StringLoader.Get("Done"));
