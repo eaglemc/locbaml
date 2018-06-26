@@ -22,7 +22,7 @@ namespace BamlLocalization
     /// </summary>
     internal class ResourceTextReader : IDisposable 
     {
-        internal ResourceTextReader(FileType fileType, Stream stream)
+        internal ResourceTextReader(TranslationFileType fileType, Stream stream)
         {
             _delimiter = LocBamlConst.GetDelimiter(fileType);
             if(stream == null)

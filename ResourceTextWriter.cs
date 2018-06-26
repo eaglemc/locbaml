@@ -25,7 +25,7 @@ namespace BamlLocalization
         //-------------------------------
         // constructor 
         //-------------------------------
-        internal ResourceTextWriter(FileType fileType, Stream output)
+        internal ResourceTextWriter(TranslationFileType fileType, Stream output)
         {
             
             _delimiter = LocBamlConst.GetDelimiter(fileType);

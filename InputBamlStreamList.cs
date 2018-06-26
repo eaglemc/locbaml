@@ -30,7 +30,7 @@ namespace BamlLocalization
             _bamlStreams = new ArrayList();
             switch (options.InputType)
             {
-                case FileType.BAML:
+                case BinaryFileType.BAML:
                     {
                         _bamlStreams.Add(
                             new BamlStream(
@@ -40,7 +40,7 @@ namespace BamlLocalization
                         );
                         break;
                     }
-                case FileType.RESOURCES:
+                case BinaryFileType.RESOURCES:
                     {
                         using (ResourceReader resourceReader = new ResourceReader(options.Input))
                         {
@@ -49,8 +49,8 @@ namespace BamlLocalization
                         }
                         break;
                     }
-                case FileType.EXE:
-                case FileType.DLL:
+                case BinaryFileType.EXE:
+                case BinaryFileType.DLL:
                     {
                         // for a dll, it is the same idea
                         Assembly assembly = Assembly.LoadFrom(options.Input);
@@ -74,7 +74,6 @@ namespace BamlLocalization
                     }
                 default:
                     {
-
                         Debug.Assert(false, "Not supported type");
                         break;
                     }
@@ -186,7 +185,7 @@ namespace BamlLocalization
             string extension = Path.GetExtension(name);
             if (string.Compare(
                     extension, 
-                    "." + FileType.BAML.ToString(), 
+                    BinaryFileType.BAML.GetExtension(), 
                     true, 
                     CultureInfo.InvariantCulture
                     ) == 0

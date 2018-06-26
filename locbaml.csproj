@@ -55,13 +55,16 @@
     <Compile Include="const.cs" />
     <Compile Include="DefaultAttributes.cs" />
     <Compile Include="InputBamlStreamList.cs" />
+    <Compile Include="BinaryFileType.cs" />
     <Compile Include="LocBaml.cs" />
+    <Compile Include="LocBamlOptions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceGenerator.cs" />
     <Compile Include="ResourceTextReader.cs" />
     <Compile Include="ResourceTextWriter.cs" />
     <Compile Include="StringLoader.cs" />
     <Compile Include="TranslationDictionaries.cs" />
+    <Compile Include="TranslationFileType.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="StringTable.resText" />

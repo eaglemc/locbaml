@@ -18,18 +18,18 @@ namespace BamlLocalization
         internal const string BamlAndResourceSeperator = ":";
         internal const string ResourceExtension        = ".resources";
 
-        internal static char GetDelimiter(FileType fileType)
+        internal static char GetDelimiter(TranslationFileType fileType)
         {
             char delimiter;
             switch (fileType)
             {
-                case FileType.CSV:
+                case TranslationFileType.CSV:
                 {
                         delimiter = ',';
                         break;
                 }
 
-                case FileType.TXT:
+                case TranslationFileType.TXT:
                 {
                         delimiter = '\t';
                         break;
