@@ -237,5 +237,27 @@ namespace BamlLocalization
                     throw new Exception("Unknown translation file type");
             }
         }
+
+        public TranslationDictionariesReader GetTranslationsDictionary()
+        {
+            switch (TranslationFileType)
+            {
+                case TranslationFileType.CSV:
+                case TranslationFileType.TXT:
+                    Stream input = File.OpenRead(Translations);
+                    using (ResourceTextReader reader = new ResourceTextReader(TranslationFileType, input))
+                    {
+                        return new TranslationDictionariesReader(reader);
+                    }
+                case TranslationFileType.XLIFF:
+                    using (Stream xlfInput = File.OpenRead(Translations))
+                    {
+                        Xliff1_2.XliffObject xliff = Xliff1_2.XliffObject.Deserialize(xlfInput);
+                        return new TranslationDictionariesReader(xliff);
+                    }
+                default:
+                    throw new Exception("Unknown translation file type");
+            }
+        }
     }
 }

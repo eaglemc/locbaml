@@ -26,5 +26,11 @@ namespace BamlLocalization.Xliff1_2
             XmlSerializer serializer = new XmlSerializer(typeof(XliffObject));
             serializer.Serialize(stream, this, namespaces);
         }
+
+        public static XliffObject Deserialize(System.IO.Stream stream)
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(XliffObject));
+            return (XliffObject)serializer.Deserialize(stream);
+        }
     }
 }

@@ -127,12 +127,8 @@ namespace BamlLocalization
         /// </summary>        
         private static void GenerateBamlResources(LocBamlOptions options)
         {   
-            Stream input = File.OpenRead(options.Translations);
-            using (ResourceTextReader reader = new ResourceTextReader(options.TranslationFileType, input))
-            {   
-                TranslationDictionariesReader dictionaries = new TranslationDictionariesReader(reader);                                                               
-                ResourceGenerator.Generate(options, dictionaries);
-            }         
+            TranslationDictionariesReader dictionaries = options.GetTranslationsDictionary();
+            ResourceGenerator.Generate(options, dictionaries);
         }
             
         /// <summary>

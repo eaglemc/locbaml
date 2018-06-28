@@ -66,6 +66,7 @@
     <Compile Include="ResourceXliffWriter.cs" />
     <Compile Include="StringLoader.cs" />
     <Compile Include="TranslationDictionaries.cs" />
+    <Compile Include="TranslationDictionariesReader.cs" />
     <Compile Include="TranslationFileType.cs" />
     <Compile Include="Xliff1_2\Body.cs" />
     <Compile Include="Xliff1_2\File.cs" />
