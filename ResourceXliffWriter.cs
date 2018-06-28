@@ -67,7 +67,8 @@ namespace BamlLocalization
                 unit = new TranslationUnit()
                 {
                     Id = resourceKey,
-                    Source = resource.Content
+                    Source = resource.Content,
+                    ResourceType = resource.Category.ToString()
                 };
                 group.TranslationUnits.Add(unit);
             }

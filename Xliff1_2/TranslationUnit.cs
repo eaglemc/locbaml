@@ -19,6 +19,32 @@ namespace BamlLocalization.Xliff1_2
         [XmlElement("note")]
         public List<Note> Notes { get; set; } = new List<Note>();
 
+        [XmlIgnore]
+        public string ResourceType { get; set; }
+
+        // Custom values of restype must start with "x-" so take
+        // care of that automatically for the serialized property
+        [XmlAttribute("restype")]
+        public string XmlResourceType
+        {
+            get { return "x-" + ResourceType; }
+            set
+            {
+                if (value == null)
+                {
+                    ResourceType = null;
+                }
+                else if (value.StartsWith("x-"))
+                {
+                    ResourceType = value.Substring(2);
+                }
+                else
+                {
+                    ResourceType = value;
+                }
+            }
+        }
+
         #region constant
 
         // TBD: is this constant??
