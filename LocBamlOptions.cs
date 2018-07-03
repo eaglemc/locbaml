@@ -232,7 +232,26 @@ namespace BamlLocalization
                     return new ResourceTextWriter(TranslationFileType, new FileStream(Output, FileMode.Create));
                 case TranslationFileType.XLIFF:
                     // ResourceXliffWriter will dispose of the stream when it is disposed of
-                    return new ResourceXliffWriter(this, new FileStream(Output, FileMode.Create));
+                    if (File.Exists(Output))
+                    {
+                        Xliff1_2.XliffObject existingFile;
+                        try
+                        {
+                            using (FileStream stream = new FileStream(Output, FileMode.Open))
+                            {
+                                existingFile = Xliff1_2.XliffObject.Deserialize(stream);
+                            }
+                        }
+                        catch (Exception e)
+                        {
+                            throw new Exception("Error reading existing XLIFF file: " + e.Message, e);
+                        }
+                        return new ResourceXliffWriter(this, new FileStream(Output, FileMode.Create), existingFile);
+                    }
+                    else
+                    {
+                        return new ResourceXliffWriter(this, new FileStream(Output, FileMode.Create));
+                    }
                 default:
                     throw new Exception("Unknown translation file type");
             }

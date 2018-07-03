@@ -21,6 +21,13 @@ namespace BamlLocalization
             _TargetLanguage = options.CultureInfo.Name;
         }
 
+        public ResourceXliffWriter(LocBamlOptions options, System.IO.Stream output, XliffObject existingObject)
+        {
+            _OutputStream = output;
+            _RootObject = existingObject;
+            _TargetLanguage = options.CultureInfo.Name;
+        }
+
         public void Dispose()
         {
             if (_OutputStream != null)
@@ -74,7 +81,23 @@ namespace BamlLocalization
             }
             else
             {
-                // TODO: Don't do anything if untranslated string is the same, figure out what to do if they're different....
+                string resourceCategory = resource.Category.ToString();
+                // If the untranslated string is the same, we don't need to do anything
+                if (unit.Source != resource.Content)
+                {
+                    // Simple: Flag that the translation needs to be reviewed
+                    unit.Target.State = TranslationState.NeedsReview;
+                    // Is there an official way to do this?
+                    unit.Notes.Add(new Note() { From = "locbaml", Annotates = "general", Priority = 3, Text = $"Needs Review: Old Source was \"{unit.Source}\"" });
+                    // And update the source
+                    unit.Source = resource.Content;
+                }
+                if (unit.ResourceType != resourceCategory)
+                {
+                    unit.Target.State = TranslationState.NeedsReview;
+                    unit.Notes.Add(new Note() { From = "locbaml", Annotates = "general", Priority = 3, Text = $"Needs Review: Text was for a {unit.ResourceType} and is now used by a {resourceCategory}" });
+                    unit.ResourceType = resourceCategory;
+                }
             }
             if (!string.IsNullOrEmpty(resource.Comments))
             {
