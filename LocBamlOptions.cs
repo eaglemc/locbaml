@@ -161,8 +161,9 @@ namespace BamlLocalization
                     string errorMsg = null;
                     try
                     {
-                        // load the assembly
-                        Assemblies[i] = Assembly.LoadFrom((string)AssemblyPaths[i]);
+                        // Read file contents into a byte array or else we will hold the file open
+                        byte[] fileContents = File.ReadAllBytes((string)AssemblyPaths[i]);
+                        Assemblies[i] = Assembly.Load(fileContents);
                     }
                     catch (ArgumentException argumentError)
                     {

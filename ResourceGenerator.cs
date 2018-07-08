@@ -276,7 +276,8 @@ namespace BamlLocalization
             string moduleLocalName          = GetAssemblyModuleLocalName(options, outputAssemblyLocalName); // the module name within the assmbly
                 
             // get the source assembly
-            Assembly srcAsm = Assembly.LoadFrom(sourceAssemblyFullName);
+            byte[] sourceContents = File.ReadAllBytes(sourceAssemblyFullName);
+            Assembly srcAsm = Assembly.Load(sourceContents);
 
             // obtain the assembly name
             AssemblyName targetAssemblyNameObj = srcAsm.GetName();
@@ -331,7 +332,6 @@ namespace BamlLocalization
                     Stream resourceStream = existingAssembly.GetManifestResourceStream(resourceName);
                     using (ResourceReader reader = new ResourceReader(resourceStream))
                     {
-                        int j = 0;
                         foreach (DictionaryEntry entry in reader)
                         {
                             string key = entry.Key.ToString();

@@ -53,7 +53,8 @@ namespace BamlLocalization
                 case BinaryFileType.DLL:
                     {
                         // for a dll, it is the same idea
-                        Assembly assembly = Assembly.LoadFrom(options.Input);
+                        byte[] fileContents = File.ReadAllBytes(options.Input);
+                        Assembly assembly = Assembly.Load(fileContents);
                         foreach (string resourceName in assembly.GetManifestResourceNames())
                         {
                             ResourceLocation resourceLocation = assembly.GetManifestResourceInfo(resourceName).ResourceLocation;
