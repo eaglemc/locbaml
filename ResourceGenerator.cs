@@ -17,7 +17,6 @@ using System.Reflection.Emit;
 using System.Diagnostics;
 using System.Resources;
 using System.Threading;
-using System.Windows.Threading;
 using System.Windows.Markup.Localizer;
 using System.Collections.Generic;
 
@@ -274,7 +273,7 @@ namespace BamlLocalization
             string outputAssemblyDir        = options.Output;               // output assembly directory
             string outputAssemblyLocalName  = GetOutputFileName(options);   // output assembly name
             string moduleLocalName          = GetAssemblyModuleLocalName(options, outputAssemblyLocalName); // the module name within the assmbly
-                
+
             // get the source assembly
             byte[] sourceContents = File.ReadAllBytes(sourceAssemblyFullName);
             Assembly srcAsm = Assembly.Load(sourceContents);
