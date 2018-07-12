@@ -4,7 +4,10 @@ Updated version of Microsoft's locbaml tool.
 * Ability to read and write XLIFF 1.2 files (*.xlf)
   * These can be edited with the Multilingual Editor that's part of Microsoft's Multilingual App Toolkit
   * When writing to an existing XLIFF file the results are automatically merged with the old file
-* Also builds a locbaml.dll file that contains Tasks that can be used from MSBuild instead of needing to run locbaml.exe from the command line
+* Also builds a locbaml.dll file that contains Tasks that can be used from MSBuild instead of
+  needing to run locbaml.exe from the command line
+* Merges non-BAML resources from any existing satellite assembly for the target culture.
+  This allows using both locbaml and resx files.
 
 ## Todo
 * Filtering what elements and attributes to include in generated translation files

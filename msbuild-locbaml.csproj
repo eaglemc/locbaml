@@ -51,6 +51,7 @@
     <Compile Include="DefaultAttributes.cs" />
     <Compile Include="Tasks\LocBamlGenerate.cs" />
     <Compile Include="Tasks\LocBamlParse.cs" />
+    <Compile Include="Tasks\LocBamlTranslate.cs" />
     <Compile Include="Xliff1_2\Body.cs" />
     <Compile Include="Xliff1_2\File.cs" />
     <Compile Include="Xliff1_2\Group.cs" />
